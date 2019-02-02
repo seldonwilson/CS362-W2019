@@ -2,7 +2,7 @@
 #include <stddef.h>     // size_t
 #include <string.h>     // memcmp(), memcpy(), memset()
 #include <stdio.h>      // printf()
-#include <stdlib.h>     // malloc(), free()
+#include <stdlib.h>     // malloc(), free(), NULL
 #include "dominion.h"   // struct gameState
 
 
@@ -14,18 +14,18 @@ typedef struct gameState gameState;
 
 /*******************************************************************************
 * This struct holds the states that could potentially be modified by in-game   *
-* functions. The values are stored as bit flags in positions shown below.
-*
-*      playerOne/Two/Three/Four |   generalOutpost  |        turn    
-*      -------------------------+-------------------+--------------------
-*          hand...........1     | numPlayers......1 | whoseTurn.........1
-*          handCount......2     | supplyCount.....2 | phase.............2
-*          deck...........4     | embargoTokens...4 | numActions........4 
-*          deckCount......8     | outpostPlayed...8 | coins.............8
-*          discard.......16     | outPostTurn....16 | numBuys..........16
-*          discardCount..32     |                   | playedCards......32
-*                               |                   | playedCardCount..64
-*
+* functions. The values are stored as bit flags in positions shown below.      *
+*                                                                              *
+*      playerOne/Two/Three/Four |   generalOutpost  |        turn              *
+*      -------------------------+-------------------+--------------------      *
+*          hand...........1     | numPlayers......1 | whoseTurn.........1      *
+*          handCount......2     | supplyCount.....2 | phase.............2      *
+*          deck...........4     | embargoTokens...4 | numActions........4      *
+*          deckCount......8     | outpostPlayed...8 | coins.............8      *
+*          discard.......16     | outPostTurn....16 | numBuys..........16      *
+*          discardCount..32     |                   | playedCards......32      *
+*                               |                   | playedCardCount..64      *
+*                                                                              *
 * NOTE: This struct must be initialized with all it's fields set to 0.         *
 *******************************************************************************/
 typedef struct  {   
@@ -35,7 +35,6 @@ typedef struct  {
    char playerFour;
    char turn;
    char general;
-   
 } ChangedStates;
 
 typedef enum {
@@ -87,9 +86,11 @@ int main(void) {
    memset(&changedStates1, 0, sizeof (ChangedStates));
    memset(&changedStates2, 0, sizeof (ChangedStates));
    
-   changedStates1.general |= OUTPOST_PLAYED;
-   changedStates1.general |= SUPPLY_COUNT;
-   changedStates1.general |= EMBARGO_TOKENS;
+   changedStates1.general   |= OUTPOST_PLAYED;
+   changedStates1.general   |= SUPPLY_COUNT;
+   changedStates1.general   |= EMBARGO_TOKENS;
+   changedStates1.turn      |= PLAYED_CARDS;
+   changedStates1.playerOne |= DECK;
     
    int k1[10] = {adventurer, council_room, feast, gardens, mine,
                 remodel, smithy, village, baron, great_hall};
@@ -108,6 +109,8 @@ int main(void) {
    question.outpostPlayed = 69;
    question.supplyCount[remodel] = 1000;
    question.outpostPlayed = -51;
+   question.playedCards[1] = ambassador;
+   question.deck[0][0] = treasure_map;
 
       // States should be accepted because modification of player1's deck
       //allowed
@@ -117,11 +120,11 @@ int main(void) {
       printf("ERROR: Same states don't match\n");
    
 
-   question.deck[0][0] = gold; // change first card to gold
-   if (!isStateUnchanged(&original, &question, changedStates1))
-      printf("States don't match! Yay : )\n");
+   question.deck[1][0] = salvager;
+   if (isStateUnchanged(&original, &question, changedStates1))
+      printf("States match!\n");
    else
-      printf("ERROR: Different states match\n");
+      printf("States don't match\n");
 
    return 0;
 }
@@ -199,50 +202,116 @@ gameState* copyStateWithChanges(
 }
 
 
+/*******************************************************************************
+*    Function: copyPlayerChanges                                               *
+*                                                                              *
+* Description: Takes all player state properties which are allowed to change   *
+*              and copies them from question into mutated. State properties    *
+*              which should not change are left unmodified.                    *
+*                                                                              *
+*      Inputs: mutated   - const gameState* (original state copy w/ changes)   *
+*              question  - const gameState* (state after function to test)     *
+*              changed   - ChangedStates (states that are allowed to change)   *
+*              playerNum - int (the number of the player - 1 is player 1)      *
+*                                                                              *
+*     Outputs: void                                                            *
+*******************************************************************************/
 void copyPlayerChanges(
    gameState*       mutated,
    const gameState* question,
    ChangedStates    changed, 
    int              playerNum)
 {
-  ;      
+   char playerState;
+   switch (playerNum) {
+      case 1: playerState = changed.playerOne;   break;
+      case 2: playerState = changed.playerTwo;   break;
+      case 3: playerState = changed.playerThree; break;
+      case 4: playerState = changed.playerFour;  break;
+      default: playerState = '\0';
+   }
+
+   const int pi = playerNum - 1;
+   const size_t deckSize = sizeof (int) * MAX_DECK; 
+   
+   if (playerState & HAND)
+      memcpy(mutated->hand[pi], question->hand[pi], deckSize);
+   if (playerState & HAND_COUNT)
+      mutated->handCount[pi] = question->handCount[pi];
+   if (playerState & DECK)
+      memcpy(mutated->deck[pi], question->deck[pi], deckSize);
+   if (playerState & DECK_COUNT)
+      mutated->deckCount[pi] = question->deckCount[pi];
+   if (playerState & DISCARD)
+      memcpy(mutated->discard[pi], question->discard[pi], deckSize);
+   if (playerState & DISCARD_COUNT)
+      mutated->discardCount[pi] = question->discardCount[pi];
 }
 
 
+/*******************************************************************************
+*    Function: copyTurnChanges                                                 *
+*                                                                              *
+* Description: Takes all turn state properties which are allowed to be changed *
+*              and copies them from question into mutated. State properties    *
+*              which should not change are left unmodified.                    *
+*                                                                              *
+*      Inputs: mutated  - const gameState* (original state copy w/ changes)    *
+*              question - const gameState* (state after function to test)      *
+*              changed  - ChangedStates (states that are allowed to change)    *
+*                                                                              *
+*     Outputs: void                                                            *
+*******************************************************************************/
 void copyTurnChanges(
    gameState*       mutated,
    const gameState* question,
    ChangedStates changed)
 {
-   ;
+   if (changed.turn & WHOSE_TURN)
+      mutated->whoseTurn = question->whoseTurn;
+   if (changed.turn & PHASE)
+      mutated->phase = question->phase;
+   if (changed.turn & NUM_ACTIONS)
+      mutated->numActions = question->numActions;
+   if (changed.turn & COINS)
+      mutated->coins = question->coins;
+   if (changed.turn & NUM_BUYS)
+      mutated->numBuys = question->numBuys;
+   if (changed.turn & PLAYED_CARDS)
+      memcpy(mutated->playedCards, question->playedCards, sizeof (int) * MAX_DECK);
+   if (changed.turn & PLAYED_CARD_COUNT)
+      mutated->playedCardCount = question->playedCardCount;
 }
 
+
+/*******************************************************************************
+*    Function: copyGeneralChanges                                              *
+*                                                                              *
+* Description: Takes all general state properties which are allowed to be      *
+*              changed and copies them from question into mutated. State       *
+*              properties which should not change are left unmodified.         *
+*                                                                              *
+*      Inputs: mutated  - const gameState* (original state copy w/ changes)    *
+*              question - const gameState* (state after function to test)      *
+*              changed  - ChangedStates (states that are allowed to change)    *
+*                                                                              *
+*     Outputs: void                                                            *
+*******************************************************************************/
 void copyGeneralChanges(
    gameState*       mutated,
    const gameState* question,
    ChangedStates changed)
 {
-   if (changed.general & NUM_PLAYERS) {
+   const size_t supplySize = sizeof (int) * (treasure_map + 1);
+
+   if (changed.general & NUM_PLAYERS)
       mutated->numPlayers = question->numPlayers;
-   }
-   if (changed.general & SUPPLY_COUNT) {
-      memcpy(
-         mutated->supplyCount,
-         question->supplyCount,
-         sizeof (int) * (treasure_map + 1)
-      );
-   }
-   if (changed.general & EMBARGO_TOKENS) {
-      memcpy(
-         mutated->embargoTokens,
-         question->embargoTokens,
-         sizeof (int) * (treasure_map + 1)
-      );
-   }
-   if (changed.general & OUTPOST_PLAYED) {
+   if (changed.general & SUPPLY_COUNT)
+      memcpy(mutated->supplyCount, question->supplyCount, supplySize);
+   if (changed.general & EMBARGO_TOKENS)
+      memcpy(mutated->embargoTokens, question->embargoTokens, supplySize);
+   if (changed.general & OUTPOST_PLAYED)
       mutated->outpostPlayed = question->outpostPlayed;
-   }
-   if (changed.general & OUTPOST_TURN) {
+   if (changed.general & OUTPOST_TURN)
       mutated->outpostTurn = question->outpostTurn;
-   }
 }
