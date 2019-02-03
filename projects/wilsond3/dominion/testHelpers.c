@@ -204,13 +204,28 @@ void copyGeneralChanges(
 }
 
 
-
-
-void myAssert(bool expr, const char* msg, const char* err, bool quitOnError) {
+/***********************************************************************************
+*    Function: myAssert                                                            *
+*                                                                                  *
+* Description: Asserts the given boolean expression to be true and prints SUCCESS  *
+*              or FAILED prepending the given msg based on that assertion. The     *
+*              caller has the option of aborting the program on a failure using    *
+*              the last argument. A specific error message is passed along as well *
+*              that should provide debugging help (possibly file and line # info). *
+*                                                                                  *
+*      Inputs: expr      - bool (expression being asserted as true)                *
+*              msg       - const char* (message to describe what's being asserted) *
+*              err       - const char* (error message to aid in debugging)         *
+*              quitOnErr - bool (set if program should exit when expr is false)    *
+*                                                                                  *
+*     Outputs: void                                                                *
+***********************************************************************************/
+void myAssert(bool expr, const char* msg, const char* err, bool quitOnErr)
+{
    if (!expr) {
       fprintf(stderr, "FAILED: %s %s\n", msg, err);
       
-      if (quitOnError) {
+      if (quitOnErr) {
          printf("Quitting...\n");
          exit(1);
       }
