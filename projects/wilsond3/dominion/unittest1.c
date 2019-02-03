@@ -69,7 +69,7 @@ int main(void) {
          _testOnlyDeckModified(&original, &modified, p, d);
             // Test that cards in deck have not changed
          _testSameDeckContents(&original, &modified, p, d);
-            // Test if deck is in different order (can modify modified)
+            // Test if deck is in different order (modified may mutate)
          _testDeckShuffled(&original, &modified, p, d);
       }
    }
