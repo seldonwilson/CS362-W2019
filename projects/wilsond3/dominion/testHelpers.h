@@ -1,8 +1,22 @@
+/***********************************************************************************
+* Filename: testHelpers.c                                                          *
+*   Author: Daniel Wilson                                                          *
+*   E-mail: wilsond3@oregonstate.edu                                               *
+*   Course: CS 362                                                                 *
+*  Created: 2 Feb 2019                                                             *
+* Modified: 2 Feb 2019                                                             *
+*                                                                                  *
+* Description: Contains the interfaces for functions which are used in more than   *
+*    one unit test for the dominion card game program.                             *
+*                                                                                  *
+***********************************************************************************/
 #ifndef TEST_HELPERS_H
 #define TEST_HELPERS_H
 
-#include <stdbool.h>  // bool
+#include <stdbool.h>  // bool, true, false
 #include "dominion.h" // struct gameState
+
+#define PRINT_PASSED true
 
 typedef struct gameState gameState;
 
@@ -21,7 +35,7 @@ typedef struct gameState gameState;
 *                                 |                   | playedCardCount..64        *
 *                                                                                  *
 * NOTE: This struct must be initialized with all it's fields set to 0.             *
-*******************************************************************************/
+***********************************************************************************/
 typedef struct  {   
    char playerOne;
    char playerTwo;
@@ -75,6 +89,8 @@ void copyPlayerChanges(gameState*, const gameState*, ChangedStates, int);
 void copyTurnChanges(gameState*, const gameState*, ChangedStates);
    // Copy mutable general state properties to first argument from second
 void copyGeneralChanges(gameState*, const gameState*, ChangedStates);
+   // Prints PASSED/FAILED for a given boolean expression, can enable quit on error
+void myAssert(bool, const char*, const char*, bool);
 
 
 #endif // TEST_HELPERS_H
