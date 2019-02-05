@@ -233,3 +233,24 @@ void myAssert(bool expr, const char* msg, const char* err, bool quitOnErr)
    else if (PRINT_PASSED)
       printf("PASSED: %s\n", msg);
 }
+
+
+
+void testHandChange(
+   const gameState* original,
+   const gameState* question,
+   int player,
+   int change)
+{
+   char msg[255];
+   char err[255];
+   
+      // Set messages for assertion
+   sprintf(msg, "player: %d's hand changed by %d!", player, change);
+   sprintf(err, "@ %s, line %d", __FILE__, __LINE__ + 3);
+   
+   myAssert(
+      question->handCount[player - 1] - original->handCount[player - 1] == change,
+      msg, err, false
+   );
+}

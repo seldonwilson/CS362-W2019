@@ -91,6 +91,7 @@ void copyTurnChanges(gameState*, const gameState*, ChangedStates);
 void copyGeneralChanges(gameState*, const gameState*, ChangedStates);
    // Prints PASSED/FAILED for a given boolean expression, can enable quit on error
 void myAssert(bool, const char*, const char*, bool);
-
+   // Tests if the player's handCount increased by the given amount
+void testHandChange(const gameState*, const gameState*, int, int);
 
 #endif // TEST_HELPERS_H
