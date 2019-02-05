@@ -247,10 +247,48 @@ void testHandChange(
    
       // Set messages for assertion
    sprintf(msg, "player: %d's hand changed by %d!", player, change);
-   sprintf(err, "@ %s, line %d", __FILE__, __LINE__ + 3);
+   sprintf(err, "@ %s, line %d", __FILE__, __LINE__ + 2);
    
    myAssert(
       question->handCount[player - 1] - original->handCount[player - 1] == change,
+      msg, err, false
+   );
+}
+
+void testActionsChange(
+   const gameState* original,
+   const gameState* question,
+   int player,
+   int change)
+{
+   char msg[255];
+   char err[255];
+   
+      // Set messages for assertion
+   sprintf(msg, "player: %d's actions changed by %d!", player, change);
+   sprintf(err, "@ %s, line %d", __FILE__, __LINE__ + 2);
+   
+   myAssert(
+      question->numActions - original->numActions == change,
+      msg, err, false
+   );
+}
+
+void testLastInDiscard(const gameState*, const gameState*, int, int)
+   const gameState* original,
+   const gameState* question,
+   int player,
+   int card)
+{
+   char msg[255];
+   char err[255];
+   
+      // Set messages for assertion
+   sprintf(msg, "player: %d's dis changed by %d!", player, change);
+   sprintf(err, "@ %s, line %d", __FILE__, __LINE__ + 2);
+   
+   myAssert(
+      question->discard[player - 1][original->discardCount[player - 1]] == card,
       msg, err, false
    );
 }
