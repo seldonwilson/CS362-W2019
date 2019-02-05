@@ -12,7 +12,8 @@
 *    W/in these constraints the shuffle() function is tested to ensure it:         *
 *                                                                                  *
 *    (1) Only modifies the state of the given player's deck                        *
-*    (2) Actually
+*    (2) Deck contents remain the same before and after shuffle()                  *
+*    (3) Deck actually is in a different order after shuffle()                     *
 *                                                                                  *
 ***********************************************************************************/
 #include <stdbool.h>     // bool, false, true
