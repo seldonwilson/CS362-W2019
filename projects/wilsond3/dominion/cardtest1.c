@@ -78,10 +78,9 @@ int main(void)
                // Test number of player's cards in hand should be same
             testHandChange(&original, &modified, player, 0);
                // Test number of actions increased by one
-            //_testActionsChange(&original, &modified, 1, ret); // put in testHelpers
+            testActionsChange(&original, &modified, player, 1); 
                // Test that Great Hall is in the last position of discard pile
-            //_testLastInDiscard(&modified, great_hall, ret); // put in testHelpers
-               // Test that Great Hall returns 0
+            testLastInDiscard(&modified, great_hall, player, card); 
          }
       }
    }
