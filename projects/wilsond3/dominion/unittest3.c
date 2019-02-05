@@ -44,10 +44,8 @@ static void _testGainedCardPos(const gs*, const gs*, int, int, int, int);
 /***********************************************************************************
 *************************** gainCard() Unit Test Driver ****************************
 ***********************************************************************************/
-int main(void) {
-
-// _testWhereCardWent() ensure only card added was after last card & it's not out of bounds
-            
+int main(void)
+{
    int k[10] = { adventurer, council_room, feast,   gardens, mine,
                  remodel,    smithy,       village, baron,   great_hall };
 
