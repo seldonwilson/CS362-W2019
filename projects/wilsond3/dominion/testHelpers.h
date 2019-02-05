@@ -94,4 +94,11 @@ void myAssert(bool, const char*, const char*, bool);
    // Tests if the player's handCount increased by the given amount
 void testHandChange(const gameState*, const gameState*, int, int);
 
+
+// Changes made without compiler (proceed w/ caution)
+testActionsChange(const gameState*, const gameState*, int, int); 
+testLastInDiscardconst gameState*, const gameState*, int, int);
+// Changes made without compiler (proceed w/ caution)
+
+
 #endif // TEST_HELPERS_H
