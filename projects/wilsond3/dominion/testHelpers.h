@@ -96,8 +96,8 @@ void testHandChange(const gameState*, const gameState*, int, int);
 
 
 // Changes made without compiler (proceed w/ caution)
-testActionsChange(const gameState*, const gameState*, int, int); 
-testLastInDiscardconst gameState*, const gameState*, int, int);
+void testActionsChange(const gameState*, const gameState*, int, int); 
+void testLastInDiscard(const gameState*, const gameState*, int, int);
 // Changes made without compiler (proceed w/ caution)
 
 
