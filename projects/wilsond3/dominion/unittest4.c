@@ -113,7 +113,7 @@ static void _testCardsInGame(const gameState* original, int p, int card, int ret
          upperLimit = 10;
       }
       
-      sprintf(msg, "fullDeckCount() - cards in game return possible count!", card);
+      sprintf(msg, "fullDeckCount() - cards in game return possible count!");
       sprintf(err, "@ %s, line %d", __FILE__, __LINE__ + 1);
       myAssert(ret >= 0 && ret <= upperLimit, msg, err, false);
    }
