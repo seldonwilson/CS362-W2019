@@ -1,20 +1,21 @@
 /***********************************************************************************
-* Filename: cardtest1.c                                                            *
+* Filename: cardtest3.c                                                            *
 *   Author: Daniel Wilson                                                          *
 *   E-mail: wilsond3@oregonstate.edu                                               *
 *   Course: CS 362                                                                 *
-*  Created: 4 Feb 2019                                                             *
-* Modified: 4 Feb 2019                                                             *
+*  Created: 5 Feb 2019                                                             *
+* Modified: 5 Feb 2019                                                             *
 *                                                                                  *
-* Description: Unit test for the Great Hall card in the Dominion card game program.*
-*    The card should grant the player an additional action and allow them to draw a*
-*    card. The unit test will test for:                                            *
+* Description: Unit test for the Smithy card in the Dominion card game program.    *
+*    The card should grant the player three additional cards. The unit test will   *
+*    test for:                                                                     *
 *                                                                                  *
 *    (1) The only changed state values are the given player's hand, deck, discard  *
 *        their requisite counts and numActions.                                    *
-*    (2) The number of cards in the player's hand should be the same b/c they dis- *
-*        card the card after playing it and draw one (net gain of zero).           *
-*    (3) The number of actions should remain the same after card is played.        *
+*    (2) The number of cards in the player's hand should increase by two. Because  *
+*        the states of the other player's arrays could not have changed not can    *
+*        the supply pile change states, the cards must have come from the player's *
+*        discard pile or deck.                                                     *
 *                                                                                  *
 ***********************************************************************************/
 #include <stdbool.h>     // bool, false, true
@@ -29,11 +30,11 @@ char msg[255];
 char err[255];
 
    // Functions to test Great Hall card
-static void _testPropertiesGreatHall(const gameState*, const gameState*, int);
+static void _testPropertiesSmithy(const gameState*, const gameState*, int);
 
 
 /***********************************************************************************
-**************************** Great Hall Unit Test Driver ***************************
+****************************** Smithy Unit Test Driver *****************************
 ***********************************************************************************/
 int main(void)
 {
@@ -61,27 +62,25 @@ int main(void)
          modified.handCount[player - 1] = handSize;
          modified.discardCount[player - 1] = discardSize;
             // Set last card in hand to be Great Hall
-         modified.hand[player - 1][handSize] = great_hall;
+         modified.hand[player - 1][handSize] = smithy;
             // Set current player
          modified.whoseTurn = player - 1;
          
             // Copy modified into original to store pre-shuffle() state 
          memcpy(&original, &modified, sizeof (gameState));
 
-            // Play Great Hall
+            // Play Smithy
          int ret = playCard(handSize, 0, 0, 0, &modified);
-
+         
          testCardPlaySuccessful(
-            ret, great_hall, player, deckSize, handSize, discardSize
+            ret, smithy, player, deckSize, handSize, discardSize
          );
 
          if (ret == 0) {
                // Test only current player's state properties are modified
-            _testPropertiesGreatHall(&original, &modified, player);
-               // Test number of player's cards in hand should be same (-1 + 1)
-            testHandChange(&original, &modified, player, 0);
-               // Test number of actions remains the same (-1 + 1)
-            testActionsChange(&original, &modified, player, 0); 
+            _testPropertiesSmithy(&original, &modified, player);
+               // Test number of player's cards increases by two
+            testHandChange(&original, &modified, player, 2);
          }
       }
    }
@@ -91,7 +90,7 @@ int main(void)
 
 
 
-static void _testPropertiesGreatHall(
+static void _testPropertiesSmithy(
    const gameState* original, 
    const gameState* question,
    int player)
@@ -117,7 +116,6 @@ static void _testPropertiesGreatHall(
    *playerState |= DISCARD_COUNT;
    
       // These properties will be modified by Great Hall
-   mutableStates.turn |= NUM_ACTIONS;
    mutableStates.turn |= PLAYED_CARDS;
    mutableStates.turn |= PLAYED_CARD_COUNT;
    mutableStates.turn |= COINS;

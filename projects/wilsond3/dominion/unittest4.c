@@ -33,7 +33,7 @@ static void _testCardsNotInGame(const gameState*, int, int);
 static void _testCardsInGame(const gameState*, int, int, int);
 
 /***********************************************************************************
-*************************** gainCard() Unit Test Driver ****************************
+************************* fullDeckCount() Unit Test Driver *************************
 ***********************************************************************************/
 int main(void)
 {

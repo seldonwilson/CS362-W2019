@@ -274,8 +274,7 @@ void testActionsChange(
    );
 }
 
-void testLastInDiscard(const gameState*, const gameState*, int, int)
-   const gameState* original,
+void testLastInDiscard(
    const gameState* question,
    int player,
    int card)
@@ -284,11 +283,32 @@ void testLastInDiscard(const gameState*, const gameState*, int, int)
    char err[255];
    
       // Set messages for assertion
-   sprintf(msg, "player: %d's dis changed by %d!", player, change);
+   sprintf(msg, "Last card in player: %d's discard is %d!", player, card);
    sprintf(err, "@ %s, line %d", __FILE__, __LINE__ + 2);
    
    myAssert(
-      question->discard[player - 1][original->discardCount[player - 1]] == card,
+      question->discard[player - 1][question->discardCount[player - 1] - 1] == card,
       msg, err, false
    );
+}
+
+
+void testCardPlaySuccessful(
+   int ret,
+   int card,
+   int player,
+   int deckSize,
+   int handSize,
+   int discardSize)
+{
+   char msg[255];
+   char err[255];
+   
+      // Set messages for assertion
+   sprintf(msg, "Card: %d | Player: %d | deckSize: %d | handSize: %d | discardSize:"
+      " %d - Card played successfully!", 
+      card, player, deckSize, handSize, discardSize);
+   sprintf(err, "@ %s, line %d", __FILE__, __LINE__ + 2);
+   
+   myAssert(ret == 0, msg, err, false);
 }

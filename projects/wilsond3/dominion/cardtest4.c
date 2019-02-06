@@ -1,20 +1,21 @@
 /***********************************************************************************
-* Filename: cardtest1.c                                                            *
+* Filename: cardtest4.c                                                            *
 *   Author: Daniel Wilson                                                          *
 *   E-mail: wilsond3@oregonstate.edu                                               *
 *   Course: CS 362                                                                 *
-*  Created: 4 Feb 2019                                                             *
-* Modified: 4 Feb 2019                                                             *
+*  Created: 5 Feb 2019                                                             *
+* Modified: 5 Feb 2019                                                             *
 *                                                                                  *
-* Description: Unit test for the Great Hall card in the Dominion card game program.*
-*    The card should grant the player an additional action and allow them to draw a*
-*    card. The unit test will test for:                                            *
+* Description: Unit test for the Adventurer card in the Dominion card game program.*
+*    The card should grant the player three additional cards. The unit test will   *
+*    test for:                                                                     *
 *                                                                                  *
 *    (1) The only changed state values are the given player's hand, deck, discard  *
 *        their requisite counts and numActions.                                    *
-*    (2) The number of cards in the player's hand should be the same b/c they dis- *
-*        card the card after playing it and draw one (net gain of zero).           *
-*    (3) The number of actions should remain the same after card is played.        *
+*    (2) The number of cards in the player's hand should increase by one at most.  *
+*        b/c the states of the other player's arrays could not have changed not can*
+*        the supply pile change states, the cards must have come from the player's *
+*        discard pile or deck.                                                     *
 *                                                                                  *
 ***********************************************************************************/
 #include <stdbool.h>     // bool, false, true
@@ -29,11 +30,12 @@ char msg[255];
 char err[255];
 
    // Functions to test Great Hall card
-static void _testPropertiesGreatHall(const gameState*, const gameState*, int);
+static void _testPropertiesAdventurer(const gameState*, const gameState*, int);
+static int _getTreasureCountDeckAndDiscard(const gameState*, int);
 
 
 /***********************************************************************************
-**************************** Great Hall Unit Test Driver ***************************
+****************************** Smithy Unit Test Driver *****************************
 ***********************************************************************************/
 int main(void)
 {
@@ -61,27 +63,32 @@ int main(void)
          modified.handCount[player - 1] = handSize;
          modified.discardCount[player - 1] = discardSize;
             // Set last card in hand to be Great Hall
-         modified.hand[player - 1][handSize] = great_hall;
+         modified.hand[player - 1][handSize] = smithy;
             // Set current player
          modified.whoseTurn = player - 1;
          
             // Copy modified into original to store pre-shuffle() state 
          memcpy(&original, &modified, sizeof (gameState));
 
-            // Play Great Hall
+            // Play Smithy
          int ret = playCard(handSize, 0, 0, 0, &modified);
-
+         
          testCardPlaySuccessful(
-            ret, great_hall, player, deckSize, handSize, discardSize
+            ret, adventurer, player, deckSize, handSize, discardSize
          );
 
          if (ret == 0) {
                // Test only current player's state properties are modified
-            _testPropertiesGreatHall(&original, &modified, player);
-               // Test number of player's cards in hand should be same (-1 + 1)
-            testHandChange(&original, &modified, player, 0);
-               // Test number of actions remains the same (-1 + 1)
-            testActionsChange(&original, &modified, player, 0); 
+            _testPropertiesAdventurer(&original, &modified, player);
+
+            int maxTreasure = _getTreasureCountDeckAndDiscard(&original, player);
+            if (maxTreasure > 2) {
+               maxTreasure = 2;
+            }
+               /* Test that player's hand size changes by number of treasures in
+                  their discard pile and deck minus one
+               */
+            testHandChange(&original, &modified, player, maxTreasure - 1);
          }
       }
    }
@@ -91,7 +98,7 @@ int main(void)
 
 
 
-static void _testPropertiesGreatHall(
+static void _testPropertiesAdventurer(
    const gameState* original, 
    const gameState* question,
    int player)
@@ -117,7 +124,6 @@ static void _testPropertiesGreatHall(
    *playerState |= DISCARD_COUNT;
    
       // These properties will be modified by Great Hall
-   mutableStates.turn |= NUM_ACTIONS;
    mutableStates.turn |= PLAYED_CARDS;
    mutableStates.turn |= PLAYED_CARD_COUNT;
    mutableStates.turn |= COINS;
@@ -134,4 +140,24 @@ static void _testPropertiesGreatHall(
 
       // Assert that only the deck will change states
    myAssert(isStateUnchanged(original, question, mutableStates), msg, err, false);
+}
+
+static int _getTreasureCountDeckAndDiscard(const gameState* gs, int p) {
+   int count = 0;
+   
+   for (int i = 0; i < gs->deckCount[p - 1]; ++i) {
+      int card = gs->deck[p - 1][i];
+      if (card == copper || card == silver || card == gold) {
+         ++ count;
+      }
+   }
+   
+   for (int i = 0; i < gs->discardCount[p - 1]; ++i) {
+      int card = gs->discard[p - 1][i];
+      if (card == copper || card == silver || card == gold) {
+         ++ count;
+      }
+   }
+   
+   return count;
 }

@@ -93,11 +93,12 @@ void copyGeneralChanges(gameState*, const gameState*, ChangedStates);
 void myAssert(bool, const char*, const char*, bool);
    // Tests if the player's handCount increased by the given amount
 void testHandChange(const gameState*, const gameState*, int, int);
-
-
-// Changes made without compiler (proceed w/ caution)
+   // Tests if the numActions increased by a given amount
 void testActionsChange(const gameState*, const gameState*, int, int); 
-void testLastInDiscard(const gameState*, const gameState*, int, int);
+   // Tests that the return value of a played card indicates success
+void testCardPlaySuccessful(int, int, int, int, int, int);
+   // Unused: tests is card is in last position of discard pile
+void testLastInDiscard(const gameState*, int, int);
 // Changes made without compiler (proceed w/ caution)
 
 
