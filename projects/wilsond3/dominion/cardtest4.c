@@ -35,7 +35,7 @@ static int _getTreasureCountDeckAndDiscard(const gameState*, int);
 
 
 /***********************************************************************************
-****************************** Smithy Unit Test Driver *****************************
+**************************** Adventurer Unit Test Driver ***************************
 ***********************************************************************************/
 int main(void)
 {
@@ -62,8 +62,8 @@ int main(void)
          modified.deckCount[player - 1] = deckSize;
          modified.handCount[player - 1] = handSize;
          modified.discardCount[player - 1] = discardSize;
-            // Set last card in hand to be Great Hall
-         modified.hand[player - 1][handSize] = smithy;
+            // Set last card in hand to be Adventurer
+         modified.hand[player - 1][handSize] = adventurer;
             // Set current player
          modified.whoseTurn = player - 1;
          

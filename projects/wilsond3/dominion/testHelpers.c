@@ -223,7 +223,7 @@ void copyGeneralChanges(
 void myAssert(bool expr, const char* msg, const char* err, bool quitOnErr)
 {
    if (!expr) {
-      fprintf(stderr, "FAILED: %s %s\n", msg, err);
+      fprintf(stdout, "FAILED: %s %s\n", msg, err);
       
       if (quitOnErr) {
          printf("Quitting...\n");

@@ -16,7 +16,7 @@
 #include <stdbool.h>  // bool, true, false
 #include "dominion.h" // struct gameState
 
-#define PRINT_PASSED true
+#define PRINT_PASSED false
 
 typedef struct gameState gameState;
 
