@@ -1,19 +1,18 @@
 /***********************************************************************************
-* Filename: randomcardtest1.c                                                      *
+* Filename: randomtestcard2.c                                                      *
 *   Author: Daniel Wilson                                                          *
 *   E-mail: wilsond3@oregonstate.edu                                               *
 *   Course: CS 362                                                                 *
 *                                                                                  *
-* Description: Random test for the Adventurer card in the Dominion card game       *
-*    program. The card should grant the player three additional cards. The unit    *
-*    test will test for:                                                           *
+* Description: Random test for the Great Hall card in Dominion card game program.  *
+*    The card should grant the player an additional action and allow them to draw a*
+*    card. The unit test will test for:                                            *
 *                                                                                  *
 *    (1) The only changed state values are the given player's hand, deck, discard  *
 *        their requisite counts and numActions.                                    *
-*    (2) The number of cards in the player's hand should increase by one at most.  *
-*        b/c the states of the other player's arrays could not have changed not can*
-*        the supply pile change states, the cards must have come from the player's *
-*        discard pile or deck.                                                     *
+*    (2) The number of cards in the player's hand should be the same b/c they dis- *
+*        card the card after playing it and draw one (net gain of zero).           *
+*    (3) The number of actions should remain the same after card is played.        *
 *                                                                                  *
 ***********************************************************************************/
 #include <stdbool.h>     // bool, false, true
@@ -33,18 +32,17 @@ char msg[255];
 char err[255];
 
    // Functions to test Great Hall card
-static void _testPropertiesAdventurer(const gameState*, const gameState*, int);
-static int _getTreasureCountDeckAndDiscard(const gameState*, int);
+static void _testPropertiesGreatHall(const gameState*, const gameState*, int);
 
 
 /***********************************************************************************
-**************************** Adventurer Unit Test Driver ***************************
+**************************** Great Hall Unit Test Driver ***************************
 ***********************************************************************************/
 int main(void)
 {
    srand(time(NULL));
    
-   for (int i = 0; i != 1000; ++i) {
+   for (int i = 0; i != 10000; ++i) {
          // Randomly generate a the kingdom cards to play this game
       int pk[PK_SIZE];
       for (int i = 0; i != PK_SIZE; ++i) {
@@ -62,31 +60,31 @@ int main(void)
       }
       
          // Randomly select a number of players [2, 4]
-      int player = rand() % 3 + 2;
+      int numPlayers = rand() % 3 + 2;
          // Randomly select a deck size for the current player
       int deckSize = rand() % (MAX_DECK + 1);
          // Randomly select a hand size for the current player
-      int handSize = rand() % (MAX_HAND + 1);
+      int handSize = rand() % MAX_HAND;
          // Randomly select a discard size for the current player
       int discardSize = rand() % (MAX_DECK + 1);
          // Randomly select the current player
-      int currentPlayer = rand() % NUM_PLAYERS;
+      int currentPlayer = rand() % numPlayers;
       
          // Make sure to allow for deckSize to be zero
-      if (i == 0) {
+      if (rand() % MAX_DECK == 0) {
          deckSize = 0;
       }
 
       gameState modified, original;
-      if (initializeGame(NUM_PLAYERS, k, 100, &modified)) {
+      if (initializeGame(numPlayers, k, rand(), &modified)) {
          fprintf(stdout, "ERROR: gameState could not be initialized.\n");
          exit(1);
       }
       
          // Set sizes of each array count
-      modified.deckCount[player - 1] = deckSize;
-      modified.handCount[player - 1] = handSize;
-      modified.discardCount[player - 1] = discardSize;
+      modified.deckCount[currentPlayer] = deckSize;
+      modified.handCount[currentPlayer] = handSize;
+      modified.discardCount[currentPlayer] = discardSize;
       
          // Set current player
       modified.whoseTurn = currentPlayer;
@@ -102,40 +100,36 @@ int main(void)
          modified.discard[currentPlayer][i] = rand() % treasure_map;
       }
       
-         // Set last card in hand to be Adventurer, so we can play it...
-      modified.hand[player - 1][handSize] = adventurer;
+         // Set last card in hand to be Great Hall, so we can play it...
+      modified.hand[currentPlayer][handSize] = great_hall;
       
          // Copy modified into original to store pre-shuffle() state 
       memcpy(&original, &modified, sizeof (gameState));
 
-         // Play Smithy
+         // Play Great Hall
       int ret = playCard(handSize, 0, 0, 0, &modified);
-      
+
       testCardPlaySuccessful(
-         ret, adventurer, player, deckSize, handSize, discardSize
+         ret, great_hall, currentPlayer, deckSize, handSize, discardSize
       );
 
       if (ret == 0) {
             // Test only current player's state properties are modified
-         _testPropertiesAdventurer(&original, &modified, player);
-
-         int maxTreasure = _getTreasureCountDeckAndDiscard(&original, player);
-         if (maxTreasure > 2) {
-            maxTreasure = 2;
-         }
-            /* Test that player's hand size changes by number of treasures in
-               their discard pile and deck minus one
-            */
-         testHandChange(&original, &modified, player, maxTreasure - 1);
+         _testPropertiesGreatHall(&original, &modified, currentPlayer + 1);
+            // Test number of player's cards in hand should be same (-1 + 1)
+         testHandChange(&original, &modified, currentPlayer + 1, 0);
+            // Test number of actions remains the same (-1 + 1)
+         testActionsChange(&original, &modified, currentPlayer, 0); 
       }
-   }
+
+   }   
       
    return 0;
 }
 
 
 
-static void _testPropertiesAdventurer(
+static void _testPropertiesGreatHall(
    const gameState* original, 
    const gameState* question,
    int player)
@@ -161,6 +155,7 @@ static void _testPropertiesAdventurer(
    *playerState |= DISCARD_COUNT;
    
       // These properties will be modified by Great Hall
+   mutableStates.turn |= NUM_ACTIONS;
    mutableStates.turn |= PLAYED_CARDS;
    mutableStates.turn |= PLAYED_CARD_COUNT;
    mutableStates.turn |= COINS;
@@ -177,24 +172,4 @@ static void _testPropertiesAdventurer(
 
       // Assert that only the deck will change states
    myAssert(isStateUnchanged(original, question, mutableStates), msg, err, false);
-}
-
-static int _getTreasureCountDeckAndDiscard(const gameState* gs, int p) {
-   int count = 0;
-   
-   for (int i = 0; i < gs->deckCount[p - 1]; ++i) {
-      int card = gs->deck[p - 1][i];
-      if (card == copper || card == silver || card == gold) {
-         ++ count;
-      }
-   }
-   
-   for (int i = 0; i < gs->discardCount[p - 1]; ++i) {
-      int card = gs->discard[p - 1][i];
-      if (card == copper || card == silver || card == gold) {
-         ++ count;
-      }
-   }
-   
-   return count;
 }
