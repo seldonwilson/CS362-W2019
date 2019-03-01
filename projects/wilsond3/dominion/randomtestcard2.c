@@ -32,12 +32,12 @@
 char msg[255];
 char err[255];
 
-   // Functions to test Great Hall card
+   // Functions to test Smithy card
 static void _testPropertiesSmithy(const gameState*, const gameState*, int);
 
 
 /***********************************************************************************
-****************************** Smithy Unit Test Driver *****************************
+****************************** Smithy Random Test Driver ***************************
 ***********************************************************************************/
 int main(void)
 {
@@ -145,7 +145,7 @@ static void _testPropertiesSmithy(
       case 4: playerState = &mutableStates.playerFour;  break;
    }
    
-      // The current player's arrays may be modified by the Great Hall card
+      // The current player's arrays may be modified by the Smithy card
    *playerState |= DECK;
    *playerState |= DECK_COUNT;
    *playerState |= HAND;
@@ -153,10 +153,9 @@ static void _testPropertiesSmithy(
    *playerState |= DISCARD;
    *playerState |= DISCARD_COUNT;
    
-      // These properties will be modified by Great Hall
+      // These properties will be modified by Smithy
    mutableStates.turn |= PLAYED_CARDS;
    mutableStates.turn |= PLAYED_CARD_COUNT;
-   mutableStates.turn |= COINS;
    
       // Set msg for test
    sprintf(

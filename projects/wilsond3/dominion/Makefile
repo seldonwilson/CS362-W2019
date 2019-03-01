@@ -48,11 +48,11 @@ randomtestresults: randomtestadventurer randomtestcard1 randomtestcard2
 	./randomtestadventurer > randomtestadventurer.out
 	gcov -bf ./dominion.c >> randomtestadventurer.out
 	rm -f dominion.c.gcov
+	./randomtestcard1 > randomtestcard1.out
+	gcov -bf ./dominion.c >> randomtestcard1.out
+	rm -f dominion.c.gcov
 	./randomtestcard2 > randomtestcard2.out
 	gcov -bf ./dominion.c >> randomtestcard2.out
-	rm -f dominion.c.gcov
-	./randomtestcard3 > randomtestcard3.out
-	gcov -bf ./dominion.c >> randomtestcard3.out
 
 all: playdom player 
 

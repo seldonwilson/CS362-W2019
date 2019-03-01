@@ -1405,8 +1405,8 @@ static int _smithy(struct gameState* state, int currentPlayer, int handPos)
       drawCard(currentPlayer, state);
 
       // Discard card from hand
-   //discardCard(handPos, currentPlayer, state, 0); // (ORIGINAL)
-   discardCard(currentPlayer, handPos, state, 0); // (BUG INTRODUCED). Instead of discard handPos card from current player, it will discard
+   discardCard(handPos, currentPlayer, state, 0); // (ORIGINAL)
+   //discardCard(currentPlayer, handPos, state, 0); // (BUG INTRODUCED). Instead of discard handPos card from current player, it will discard
                                                   // card number currentPlayer from player number handPos. If the handPos is ≤ number of players
                                                   // this seems like it could easily escape detection.
 
